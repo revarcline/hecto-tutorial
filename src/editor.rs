@@ -31,28 +31,6 @@ impl Editor {
         Ok(())
     }
 
-    fn refresh_screen(&self) -> Result<(), Error> {
-        if self.should_quit {
-            Terminal::clear_screen()?;
-            print!("Goodbye.\r\n");
-        } else {
-            Self::draw_rows()?;
-            Terminal::move_cursor_to(0, 0)?;
-        }
-        Ok(())
-    }
-
-    fn draw_rows() -> Result<(), Error> {
-        let height = Terminal::size()?.1;
-        for current_row in 0..height {
-            print!("~");
-            if current_row + 1 < height {
-                print!("\r\n");
-            }
-        }
-        Ok(())
-    }
-
     fn evaluate_event(&mut self, event: &Event) {
         if let Key(KeyEvent {
             code, modifiers, ..
@@ -65,5 +43,31 @@ impl Editor {
                 _ => (),
             }
         }
+    }
+
+    fn refresh_screen(&self) -> Result<(), Error> {
+        Terminal::hide_cursor()?;
+        if self.should_quit {
+            Terminal::clear_screen()?;
+            print!("Goodbye.\r\n");
+        } else {
+            Self::draw_rows()?;
+            Terminal::move_cursor_to(Position { x: 0, y: 0 })?;
+        }
+        Terminal::show_cursor()?;
+        Terminal::execute()?;
+        Ok(())
+    }
+
+    fn draw_rows() -> Result<(), Error> {
+        let Size { height, .. } = Terminal::size()?;
+        for current_row in 0..height {
+            Terminal::clear_line()?;
+            Terminal::print("~")?;
+            if current_row + 1 < height {
+                Terminal::print("\r\n")?;
+            }
+        }
+        Ok(())
     }
 }

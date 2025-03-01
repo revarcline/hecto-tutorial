@@ -15,9 +15,15 @@ pub struct Position {
     pub x: u16,
     pub y: u16,
 }
-pub struct Terminal {}
+pub struct Terminal;
 
 impl Terminal {
+    pub fn terminate() -> Result<(), Error> {
+        Self::execute()?;
+        disable_raw_mode()?;
+        Ok(())
+    }
+
     pub fn initialize() -> Result<(), Error> {
         enable_raw_mode()?;
         Self::clear_screen()?;
@@ -26,18 +32,12 @@ impl Terminal {
         Ok(())
     }
 
-    pub fn terminate() -> Result<(), Error> {
-        Self::execute()?;
-        disable_raw_mode()?;
-        Ok(())
-    }
-
     pub fn clear_screen() -> Result<(), Error> {
         queue!(stdout(), Clear(ClearType::All))?;
         Ok(())
     }
 
-    pub fn clear_screen() -> Result<(), Error> {
+    pub fn clear_line() -> Result<(), Error> {
         queue!(stdout(), Clear(ClearType::CurrentLine))?;
         Ok(())
     }
